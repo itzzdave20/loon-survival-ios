@@ -1,0 +1,6 @@
+This project is a Kivy-based Python game. The iOS conversion should use Kivy-iOS first.
+
+Do not rename main.py.
+Do not move the scripts or resources folders unless paths are also updated.
+Test file loading carefully because bundled iOS resource paths can be strict.
+Use Xcode to configure Bundle Identifier, signing, icons, screenshots, and App Store upload.

@@ -1,0 +1,34 @@
+
+""" The Main Window.
+	Creates the loading screen object. 
+	Handles touch inputs exit game signals. 
+	Provides the canvas for most of the game objects. """
+
+import kivy.app
+import kivy.core.window
+import kivy.uix.floatlayout
+
+import scripts.game.game_mode
+
+import kivy.clock
+class MainWindow(kivy.uix.floatlayout.FloatLayout):
+	def __init__(self, **kwargs):
+		super(MainWindow, self).__init__(**kwargs)				
+
+		self.bind(size=self.re_init, pos=self.re_init)
+		self.game_mode = scripts.game.game_mode.GameMode(window=self)
+
+	def re_init(self, instance, *args): 
+		self.game_mode.re_init()
+					
+	def quit_game(self):
+		kivy.app.App.get_running_app().stop()
+						
+	def on_touch_down(self, touch):
+		self.game_mode.event.on_touch_down(touch)
+						
+	def on_touch_move(self, touch):
+		self.game_mode.event.on_touch_move(touch)
+							
+	def on_touch_up(self, touch):
+		self.game_mode.event.on_touch_up(touch)

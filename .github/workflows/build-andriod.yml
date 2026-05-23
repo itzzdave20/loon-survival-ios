@@ -1,0 +1,93 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    env:
+      BUILDOZER_WARN_ON_ROOT: 0
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      # Matches buildozer android.ndk = 25b (NDK 25.2.9519653)
+      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/25.2.9519653
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          
+      - name: Point Buildozer at installed SDK and verify AIDL
+        run: |
+          mkdir -p ~/.buildozer/android/platform
+          rm -rf ~/.buildozer/android/platform/android-sdk
+          ln -sf "$ANDROID_SDK_ROOT" ~/.buildozer/android/platform/android-sdk
+          test -x "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
+          # … AIDL check …    
+          
+
+      - name: Install Android SDK and NDK
+        uses: android-actions/setup-android@v3
+
+      - name: Add legacy sdkmanager path for Buildozer
+        run: |
+          mkdir -p "$ANDROID_SDK_ROOT/tools/bin"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_SDK_ROOT/tools/bin/sdkmanager"
+          ln -sf "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager" "$ANDROID_SDK_ROOT/tools/bin/avdmanager"
+
+      - name: Accept Android SDK licenses and install build tools
+        run: |
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;31.0.0" \
+            "ndk;25.2.9519653" \
+            "cmake;3.22.1"
+
+      - name: Verify AIDL and pre-accept Buildozer license paths
+        run: |
+          AIDL_PATH="$ANDROID_SDK_ROOT/build-tools/31.0.0/aidl"
+          if [ ! -f "$AIDL_PATH" ]; then
+            echo "AIDL not found at $AIDL_PATH"
+            ls -la "$ANDROID_SDK_ROOT/build-tools/" || true
+            find "$ANDROID_SDK_ROOT" -name "aidl" -type f 2>/dev/null || true
+            exit 1
+          fi
+          chmod +x "$AIDL_PATH"
+          mkdir -p ~/.android
+          printf '\n86823d38d4ac7f29\n' > ~/.android/repositories.cfg
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          printf '24333f8a63b6825ea9c5514f83c2829b004d1fee\n' > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          printf 'd56f5187479451eabf01fb78af6dfcb131b33910\n' > ~/.buildozer/android/platform/android-sdk/licenses/intel-android-extra-license
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip setuptools wheel Cython==0.29.33 buildozer && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Build APK
+        run: buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: loon-survival-apk
+          path: bin/*.apk
+          if-no-files-found: error

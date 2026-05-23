@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.python-version
+
+.DS_Store
+.idea/
+.vscode/
+
+.kivy/
+
+build/
+dist/
+bin/
+.gradle/
+
+*.log
+
+# Keep Android build config
+!buildozer.spec
