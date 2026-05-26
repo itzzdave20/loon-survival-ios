@@ -31,6 +31,7 @@ const state = {
   fire: false,
   lastFire: 0,
   lastHit: 0,
+  damageFlash: 0,
   kills: 0,
   deferredInstall: null,
   audioUnlocked: false,
@@ -73,6 +74,7 @@ const gunCrops = [
 const audioPaths = {
   music: resource("scripts/resources/audio/theme.mp3"),
   shoot: resource("scripts/resources/audio/player_atk.wav"),
+  npcShoot: resource("scripts/resources/audio/npc_atk.wav"),
   hit: resource("scripts/resources/audio/npc_hit.wav"),
   death: resource("scripts/resources/audio/npc_death.wav"),
   hurt: resource("scripts/resources/audio/player_hit.wav"),
@@ -91,6 +93,7 @@ function setupAudio() {
   state.audio = {
     music: createAudio(audioPaths.music, { loop: true, volume: 0.28 }),
     shoot: createAudio(audioPaths.shoot, { volume: 0.64 }),
+    npcShoot: createAudio(audioPaths.npcShoot, { volume: 0.36 }),
     hit: createAudio(audioPaths.hit, { volume: 0.48 }),
     death: createAudio(audioPaths.death, { volume: 0.56 }),
     hurt: createAudio(audioPaths.hurt, { volume: 0.6 }),
@@ -188,7 +191,7 @@ function parseObjects(text) {
       return [];
     }
     const [kind, id, x, y] = line.split(",");
-    return [{ kind, id, x: Number(x), y: Number(y), alive: true, hit: 0 }];
+    return [{ kind, id, x: Number(x), y: Number(y), alive: true, hit: 0, lastShot: Math.random() * 1200 }];
   });
 }
 
@@ -199,6 +202,18 @@ function isWall(x, y) {
   }
   const cell = row[Math.floor(x)];
   return !cell || cell !== ".";
+}
+
+function hasLineOfSight(x1, y1, x2, y2) {
+  const distance = Math.hypot(x2 - x1, y2 - y1);
+  const steps = Math.max(2, Math.ceil(distance / 0.12));
+  for (let i = 1; i < steps; i += 1) {
+    const t = i / steps;
+    if (isWall(x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function wallTexture(cell) {
@@ -275,6 +290,7 @@ function drawScene(now) {
   drawGun(now);
   drawMinimap();
   drawVignette(width, height);
+  drawDamageFlash(width, height, now);
 }
 
 function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
@@ -363,6 +379,27 @@ function drawVignette(width, height) {
   ctx.fillRect(0, 0, width, height);
 }
 
+function drawDamageFlash(width, height, now) {
+  const age = now - state.damageFlash;
+  if (age > 220) {
+    return;
+  }
+  ctx.globalAlpha = Math.max(0, 0.28 * (1 - age / 220));
+  ctx.fillStyle = "#b51f1d";
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalAlpha = 1;
+}
+
+function damagePlayer(amount, now, message) {
+  state.lastHit = now;
+  state.damageFlash = now;
+  state.player.health = Math.max(0, state.player.health - amount);
+  playSound("hurt");
+  if (message) {
+    flashMessage(message);
+  }
+}
+
 function movePlayer(dt) {
   const left = state.sticks.left;
   const right = state.sticks.right;
@@ -418,10 +455,13 @@ function updateCombat(now) {
       continue;
     }
     const distance = Math.hypot(obj.x - state.player.x, obj.y - state.player.y);
-    if (distance < 0.75 && now - state.lastHit > 420) {
-      state.lastHit = now;
-      state.player.health = Math.max(0, state.player.health - 1);
-      playSound("hurt");
+    const canSeePlayer = distance < 9 && hasLineOfSight(obj.x, obj.y, state.player.x, state.player.y);
+    if (canSeePlayer && now - obj.lastShot > 1500 + Math.random() * 650) {
+      obj.lastShot = now;
+      playSound("npcShoot");
+      damagePlayer(distance < 4 ? 6 : 4, now, "Enemy fire");
+    } else if (distance < 0.75 && now - state.lastHit > 420) {
+      damagePlayer(2, now, "Enemy hit");
     }
   }
   healthEl.textContent = String(Math.round(state.player.health));
