@@ -4,9 +4,14 @@ const healthEl = document.getElementById("health");
 const messageEl = document.getElementById("message");
 const installBtn = document.getElementById("install");
 const appBase = new URL(".", document.baseURI);
+const resourceBase = appBase.pathname.endsWith("/webapp/") ? new URL("../", appBase) : appBase;
 
 function asset(path) {
   return new URL(path, appBase).href;
+}
+
+function resource(path) {
+  return new URL(path, resourceBase).href;
 }
 
 const state = {
@@ -26,14 +31,14 @@ const state = {
 };
 
 const texturePaths = {
-  wall2: asset("../resources/textures/wall/2.png"),
-  wall3: asset("../resources/textures/wall/3.png"),
-  wall5: asset("../resources/textures/wall/5.png"),
-  sky: asset("../resources/textures/sky/cloudy_sky.png"),
-  gun: asset("../resources/textures/controller/gun.png"),
-  gunFire: asset("../resources/textures/controller/gun_firing.png"),
-  npc: asset("../resources/sprites/npc/caco_demon/0.png"),
-  flame: asset("../resources/sprites/animated_sprites/red_light/0.png")
+  wall2: resource("resources/textures/wall/2.png"),
+  wall3: resource("resources/textures/wall/3.png"),
+  wall5: resource("resources/textures/wall/5.png"),
+  sky: resource("resources/textures/sky/cloudy_sky.png"),
+  gun: resource("resources/textures/controller/gun.png"),
+  gunFire: resource("resources/textures/controller/gun_firing.png"),
+  npc: resource("resources/sprites/npc/caco_demon/0.png"),
+  flame: resource("resources/sprites/animated_sprites/red_light/0.png")
 };
 
 function resize() {
@@ -344,8 +349,8 @@ async function init() {
   setupStick("right-stick", "right");
 
   const [mapText, objectText, images] = await Promise.all([
-    loadText(asset("../resources/maps/arena_map.txt")),
-    loadText(asset("../resources/objects/arena_objects.csv")),
+    loadText(resource("resources/maps/arena_map.txt")),
+    loadText(resource("resources/objects/arena_objects.csv")),
     Promise.all(Object.entries(texturePaths).map(async ([key, src]) => [key, await loadImage(src)]))
   ]);
 
