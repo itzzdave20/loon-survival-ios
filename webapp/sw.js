@@ -1,6 +1,8 @@
-const CACHE_NAME = "loon-survival-web-v2";
+const CACHE_NAME = "loon-survival-web-v3";
 const scope = self.registration.scope;
 const asset = path => new URL(path, scope).href;
+const resourceBase = scope.endsWith("/webapp/") ? new URL("../", scope).href : scope;
+const resource = path => new URL(path, resourceBase).href;
 const ASSETS = [
   asset("./"),
   asset("index.html"),
@@ -10,17 +12,17 @@ const ASSETS = [
   asset("icons/apple-touch-icon.png"),
   asset("icons/icon-192.png"),
   asset("icons/icon-512.png"),
-  asset("../resources/maps/arena_map.txt"),
-  asset("../resources/objects/arena_objects.csv"),
-  asset("../resources/textures/wall/2.png"),
-  asset("../resources/textures/wall/3.png"),
-  asset("../resources/textures/wall/5.png"),
-  asset("../resources/textures/sky/cloudy_sky.png"),
-  asset("../resources/textures/controller/gun.png"),
-  asset("../resources/textures/controller/gun_firing.png"),
-  asset("../resources/textures/controller/skull.png"),
-  asset("../resources/sprites/npc/caco_demon/0.png"),
-  asset("../resources/sprites/animated_sprites/red_light/0.png")
+  resource("resources/maps/arena_map.txt"),
+  resource("resources/objects/arena_objects.csv"),
+  resource("resources/textures/wall/2.png"),
+  resource("resources/textures/wall/3.png"),
+  resource("resources/textures/wall/5.png"),
+  resource("resources/textures/sky/cloudy_sky.png"),
+  resource("resources/textures/controller/gun.png"),
+  resource("resources/textures/controller/gun_firing.png"),
+  resource("resources/textures/controller/skull.png"),
+  resource("resources/sprites/npc/caco_demon/0.png"),
+  resource("resources/sprites/animated_sprites/red_light/0.png")
 ];
 
 self.addEventListener("install", event => {

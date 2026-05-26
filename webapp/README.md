@@ -8,6 +8,12 @@ Run it locally:
 python3 webapp/server.py
 ```
 
+Or on Ubuntu/Linux:
+
+```bash
+./run_webapp.sh
+```
+
 Open on this laptop:
 
 ```text
