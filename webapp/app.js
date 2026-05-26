@@ -306,19 +306,22 @@ function drawGun(now) {
   const img = state.textures[`gun${frame}`] || state.textures.gun0;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 18 : 0;
-  const gunW = Math.min(width * 0.48, height * 0.72, 520);
+  const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
+  const compact = height < 520;
+  const gunW = Math.min(width * 0.3, height * 0.48, compact ? 300 : 380);
   const gunH = gunW * (img.height / img.width);
-  ctx.drawImage(img, width * 0.5 - gunW / 2, height - gunH * 0.62 + recoil, gunW, gunH);
+  const x = width * 0.5 - gunW * 0.5;
+  const y = height - gunH * (compact ? 0.3 : 0.36) + recoil;
+  ctx.drawImage(img, x, y, gunW, gunH);
 }
 
 function drawMinimap() {
-  const scale = window.innerHeight < 430 ? 3 : 4;
-  const pad = 14;
-  const top = 58;
+  const scale = window.innerHeight < 430 ? 2.4 : 3.2;
+  const pad = 12;
+  const top = window.innerHeight < 430 ? 50 : 56;
   const width = state.map[0].length * scale + 12;
   const height = state.map.length * scale + 12;
-  ctx.globalAlpha = 0.74;
+  ctx.globalAlpha = 0.62;
   ctx.fillStyle = "rgba(5, 5, 6, 0.7)";
   ctx.fillRect(pad, top, width, height);
   ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
