@@ -22,7 +22,7 @@ const state = {
   objects: [],
   textures: {},
   audio: {},
-  player: { x: 3.5, y: 2.5, angle: 0.18, health: 100 },
+  player: { x: 17.5, y: 2.5, angle: 2.95, health: 100 },
   keys: new Set(),
   sticks: {
     left: { x: 0, y: 0 },
@@ -44,8 +44,12 @@ const texturePaths = {
   wall3: resource("resources/textures/wall/3.png"),
   wall5: resource("resources/textures/wall/5.png"),
   sky: resource("resources/textures/sky/cloudy_sky.png"),
-  gun: resource("resources/textures/controller/gun.png"),
-  gunFire: resource("resources/textures/controller/gun_firing.png"),
+  gun0: resource("scripts/resources/textures/shotgun/0.png"),
+  gun1: resource("scripts/resources/textures/shotgun/1.png"),
+  gun2: resource("scripts/resources/textures/shotgun/2.png"),
+  gun3: resource("scripts/resources/textures/shotgun/3.png"),
+  gun4: resource("scripts/resources/textures/shotgun/4.png"),
+  gun5: resource("scripts/resources/textures/shotgun/5.png"),
   npc: resource("resources/sprites/npc/caco_demon/0.png"),
   flame: resource("resources/sprites/animated_sprites/red_light/0.png")
 };
@@ -279,9 +283,11 @@ function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
     }
 
     const img = obj.kind === "npc_sprite" ? state.textures.npc : state.textures.flame;
-    const size = Math.min(height * 0.85, height / distance * (obj.kind === "npc_sprite" ? 0.9 : 0.42));
+    const maxSize = obj.kind === "npc_sprite" ? height * 0.48 : height * 0.26;
+    const scale = obj.kind === "npc_sprite" ? 0.72 : 0.32;
+    const size = Math.min(maxSize, height / Math.max(distance, 1.25) * scale);
     const x = width / 2 + Math.tan(relative) * (width / fov) - size / 2;
-    const y = horizon - size / 2;
+    const y = horizon - size * 0.52;
     const startRay = Math.max(0, Math.floor(x / colWidth));
     const endRay = Math.min(rays - 1, Math.floor((x + size) / colWidth));
     const visible = zBuffer.slice(startRay, endRay + 1).some(depth => depth > distance - 0.3);
@@ -295,13 +301,15 @@ function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
 }
 
 function drawGun(now) {
-  const img = now - state.lastFire < 120 ? state.textures.gunFire : state.textures.gun;
+  const elapsed = now - state.lastFire;
+  const frame = elapsed < 60 ? 1 : elapsed < 110 ? 2 : elapsed < 160 ? 3 : elapsed < 220 ? 4 : elapsed < 280 ? 5 : 0;
+  const img = state.textures[`gun${frame}`] || state.textures.gun0;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const recoil = now - state.lastFire < 120 ? 12 : 0;
-  const gunW = Math.min(width * 0.26, 260);
+  const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 18 : 0;
+  const gunW = Math.min(width * 0.48, height * 0.72, 520);
   const gunH = gunW * (img.height / img.width);
-  ctx.drawImage(img, width * 0.5 - gunW * 0.15, height - gunH - 2 + recoil, gunW, gunH);
+  ctx.drawImage(img, width * 0.5 - gunW / 2, height - gunH * 0.62 + recoil, gunW, gunH);
 }
 
 function drawMinimap() {

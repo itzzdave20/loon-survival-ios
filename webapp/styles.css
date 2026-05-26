@@ -43,10 +43,10 @@ body,
   left: max(10px, env(safe-area-inset-left));
   right: max(10px, env(safe-area-inset-right));
   min-height: 44px;
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: flex-end;
   pointer-events: none;
 }
 
@@ -75,6 +75,7 @@ body,
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-right: auto;
 }
 
 .meter {
@@ -288,7 +289,6 @@ body,
 
 @media (max-height: 430px) {
   #hud {
-    grid-template-columns: auto 1fr auto auto;
     gap: 7px;
   }
 
@@ -299,6 +299,9 @@ body,
   #fire {
     right: max(170px, env(safe-area-inset-right));
     bottom: max(26px, env(safe-area-inset-bottom));
+    width: 78px;
+    height: 42px;
+    font-size: 13px;
   }
 
   #message {
@@ -308,7 +311,7 @@ body,
 
 @media (max-width: 720px) {
   #hud {
-    grid-template-columns: 1fr auto auto;
+    gap: 6px;
   }
 
   .brand {
@@ -320,7 +323,8 @@ body,
   }
 
   .hud-button {
-    min-width: 58px;
+    min-width: 54px;
     padding: 0 9px;
+    font-size: 12px;
   }
 }
