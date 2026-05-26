@@ -238,6 +238,54 @@ body,
   pointer-events: none;
 }
 
+#rotate-screen {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 28px;
+  background: #050506;
+  color: var(--text);
+  text-align: center;
+  z-index: 20;
+}
+
+#rotate-screen div {
+  max-width: 280px;
+  display: grid;
+  gap: 10px;
+}
+
+#rotate-screen strong {
+  font-size: 24px;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+#rotate-screen span {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+#rotate-screen::before {
+  content: "";
+  width: 86px;
+  height: 132px;
+  margin-bottom: 28px;
+  display: block;
+  border: 5px solid rgba(255, 255, 255, 0.74);
+  border-radius: 18px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.42), 0 18px 40px rgba(0, 0, 0, 0.45);
+  transform: rotate(90deg);
+}
+
+@media (orientation: portrait) {
+  #rotate-screen {
+    display: grid;
+  }
+}
+
 @media (max-height: 430px) {
   #hud {
     grid-template-columns: auto 1fr auto auto;
