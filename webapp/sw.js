@@ -1,4 +1,4 @@
-const CACHE_NAME = "loon-survival-web-v7";
+const CACHE_NAME = "loon-survival-web-v8";
 const scope = self.registration.scope;
 const asset = path => new URL(path, scope).href;
 const resourceBase = scope.endsWith("/webapp/") ? new URL("../", scope).href : scope;
@@ -25,7 +25,14 @@ const ASSETS = [
   resource("scripts/resources/textures/shotgun/4.png"),
   resource("scripts/resources/textures/shotgun/5.png"),
   resource("resources/textures/controller/skull.png"),
-  resource("resources/sprites/npc/caco_demon/0.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/0.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/1.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/2.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/3.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/4.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/5.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/6.png"),
+  resource("scripts/resources/textures/npc_sprites/idle/7.png"),
   resource("resources/sprites/animated_sprites/red_light/0.png"),
   resource("scripts/resources/audio/theme.mp3"),
   resource("scripts/resources/audio/player_atk.wav"),

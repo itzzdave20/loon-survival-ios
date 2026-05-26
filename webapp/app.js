@@ -50,9 +50,25 @@ const texturePaths = {
   gun3: resource("scripts/resources/textures/shotgun/3.png"),
   gun4: resource("scripts/resources/textures/shotgun/4.png"),
   gun5: resource("scripts/resources/textures/shotgun/5.png"),
-  npc: resource("resources/sprites/npc/caco_demon/0.png"),
+  npc0: resource("scripts/resources/textures/npc_sprites/idle/0.png"),
+  npc1: resource("scripts/resources/textures/npc_sprites/idle/1.png"),
+  npc2: resource("scripts/resources/textures/npc_sprites/idle/2.png"),
+  npc3: resource("scripts/resources/textures/npc_sprites/idle/3.png"),
+  npc4: resource("scripts/resources/textures/npc_sprites/idle/4.png"),
+  npc5: resource("scripts/resources/textures/npc_sprites/idle/5.png"),
+  npc6: resource("scripts/resources/textures/npc_sprites/idle/6.png"),
+  npc7: resource("scripts/resources/textures/npc_sprites/idle/7.png"),
   flame: resource("resources/sprites/animated_sprites/red_light/0.png")
 };
+
+const gunCrops = [
+  { x: 0, y: 345, w: 836, h: 705 },
+  { x: 0, y: 189, w: 836, h: 861 },
+  { x: 0, y: 116, w: 837, h: 934 },
+  { x: 166, y: 555, w: 609, h: 487 },
+  { x: 168, y: 0, w: 661, h: 1042 },
+  { x: 56, y: 8, w: 797, h: 1034 }
+];
 
 const audioPaths = {
   music: resource("scripts/resources/audio/theme.mp3"),
@@ -282,9 +298,10 @@ function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
       continue;
     }
 
-    const img = obj.kind === "npc_sprite" ? state.textures.npc : state.textures.flame;
-    const maxSize = obj.kind === "npc_sprite" ? height * 0.48 : height * 0.26;
-    const scale = obj.kind === "npc_sprite" ? 0.72 : 0.32;
+    const frame = Math.floor(performance.now() / 130 + obj.x + obj.y) % 8;
+    const img = obj.kind === "npc_sprite" ? state.textures[`npc${frame}`] : state.textures.flame;
+    const maxSize = obj.kind === "npc_sprite" ? height * 0.34 : height * 0.22;
+    const scale = obj.kind === "npc_sprite" ? 0.55 : 0.28;
     const size = Math.min(maxSize, height / Math.max(distance, 1.25) * scale);
     const x = width / 2 + Math.tan(relative) * (width / fov) - size / 2;
     const y = horizon - size * 0.52;
@@ -304,15 +321,16 @@ function drawGun(now) {
   const elapsed = now - state.lastFire;
   const frame = elapsed < 60 ? 1 : elapsed < 110 ? 2 : elapsed < 160 ? 3 : elapsed < 220 ? 4 : elapsed < 280 ? 5 : 0;
   const img = state.textures[`gun${frame}`] || state.textures.gun0;
+  const crop = gunCrops[frame] || gunCrops[0];
   const width = window.innerWidth;
   const height = window.innerHeight;
   const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
   const compact = height < 520;
-  const gunW = Math.min(width * 0.3, height * 0.48, compact ? 300 : 380);
-  const gunH = gunW * (img.height / img.width);
+  const gunW = Math.min(width * 0.26, height * 0.48, compact ? 270 : 350);
+  const gunH = gunW * (crop.h / crop.w);
   const x = width * 0.5 - gunW * 0.5;
-  const y = height - gunH * (compact ? 0.3 : 0.36) + recoil;
-  ctx.drawImage(img, x, y, gunW, gunH);
+  const y = height - gunH * (compact ? 0.36 : 0.42) + recoil;
+  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
 
 function drawMinimap() {
