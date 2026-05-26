@@ -1,8 +1,11 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const healthEl = document.getElementById("health");
+const healthFillEl = document.getElementById("health-fill");
+const killsEl = document.getElementById("kills");
 const messageEl = document.getElementById("message");
 const installBtn = document.getElementById("install");
+const soundBtn = document.getElementById("sound");
 const appBase = new URL(".", document.baseURI);
 const resourceBase = appBase.pathname.endsWith("/webapp/") ? new URL("../", appBase) : appBase;
 
@@ -18,7 +21,8 @@ const state = {
   map: [],
   objects: [],
   textures: {},
-  player: { x: 1.5, y: 1.5, angle: 5.41, health: 100 },
+  audio: {},
+  player: { x: 3.5, y: 2.5, angle: 0.18, health: 100 },
   keys: new Set(),
   sticks: {
     left: { x: 0, y: 0 },
@@ -26,7 +30,12 @@ const state = {
   },
   fire: false,
   lastFire: 0,
+  lastHit: 0,
+  kills: 0,
   deferredInstall: null,
+  audioUnlocked: false,
+  justUnlockedAudio: false,
+  soundEnabled: false,
   ready: false
 };
 
@@ -40,6 +49,90 @@ const texturePaths = {
   npc: resource("resources/sprites/npc/caco_demon/0.png"),
   flame: resource("resources/sprites/animated_sprites/red_light/0.png")
 };
+
+const audioPaths = {
+  music: resource("scripts/resources/audio/theme.mp3"),
+  shoot: resource("scripts/resources/audio/player_atk.wav"),
+  hit: resource("scripts/resources/audio/npc_hit.wav"),
+  death: resource("scripts/resources/audio/npc_death.wav"),
+  hurt: resource("scripts/resources/audio/player_hit.wav"),
+  notice: resource("scripts/resources/audio/notification.wav")
+};
+
+function createAudio(src, options = {}) {
+  const audio = new Audio(src);
+  audio.preload = options.preload || "auto";
+  audio.loop = Boolean(options.loop);
+  audio.volume = options.volume ?? 0.6;
+  return audio;
+}
+
+function setupAudio() {
+  state.audio = {
+    music: createAudio(audioPaths.music, { loop: true, volume: 0.28 }),
+    shoot: createAudio(audioPaths.shoot, { volume: 0.64 }),
+    hit: createAudio(audioPaths.hit, { volume: 0.48 }),
+    death: createAudio(audioPaths.death, { volume: 0.56 }),
+    hurt: createAudio(audioPaths.hurt, { volume: 0.6 }),
+    notice: createAudio(audioPaths.notice, { volume: 0.34 })
+  };
+}
+
+async function unlockAudio() {
+  if (state.audioUnlocked) {
+    return;
+  }
+  setupAudio();
+  state.audioUnlocked = true;
+  state.justUnlockedAudio = true;
+  state.soundEnabled = true;
+  soundBtn.textContent = "Sound On";
+  window.setTimeout(() => {
+    state.justUnlockedAudio = false;
+  }, 250);
+  try {
+    await state.audio.notice.play();
+    state.audio.notice.pause();
+    state.audio.notice.currentTime = 0;
+    await state.audio.music.play();
+  } catch (error) {
+    state.soundEnabled = false;
+    soundBtn.textContent = "Sound";
+  }
+}
+
+function playSound(name) {
+  if (!state.soundEnabled || !state.audio[name]) {
+    return;
+  }
+  const source = state.audio[name];
+  const sound = source.cloneNode();
+  sound.volume = source.volume;
+  sound.play().catch(() => {});
+}
+
+async function toggleSound() {
+  if (!state.audioUnlocked) {
+    await unlockAudio();
+    flashMessage(state.soundEnabled ? "Sound on" : "Tap again to enable sound");
+    return;
+  }
+  if (state.justUnlockedAudio) {
+    flashMessage("Sound on");
+    return;
+  }
+
+  state.soundEnabled = !state.soundEnabled;
+  soundBtn.textContent = state.soundEnabled ? "Sound On" : "Sound Off";
+  if (state.soundEnabled) {
+    state.audio.music.play().catch(() => {});
+    playSound("notice");
+    flashMessage("Sound on");
+  } else {
+    state.audio.music.pause();
+    flashMessage("Sound off");
+  }
+}
 
 function resize() {
   const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -161,6 +254,7 @@ function drawScene(now) {
   drawSprites(zBuffer, rays, colWidth, fov, horizon);
   drawGun(now);
   drawMinimap();
+  drawVignette(width, height);
 }
 
 function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
@@ -204,26 +298,40 @@ function drawGun(now) {
   const img = now - state.lastFire < 120 ? state.textures.gunFire : state.textures.gun;
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const gunW = Math.min(width * 0.34, 300);
+  const recoil = now - state.lastFire < 120 ? 12 : 0;
+  const gunW = Math.min(width * 0.26, 260);
   const gunH = gunW * (img.height / img.width);
-  ctx.drawImage(img, width * 0.5 - gunW * 0.2, height - gunH - 4, gunW, gunH);
+  ctx.drawImage(img, width * 0.5 - gunW * 0.15, height - gunH - 2 + recoil, gunW, gunH);
 }
 
 function drawMinimap() {
-  const scale = 5;
+  const scale = window.innerHeight < 430 ? 3 : 4;
   const pad = 14;
+  const top = 58;
+  const width = state.map[0].length * scale + 12;
+  const height = state.map.length * scale + 12;
   ctx.globalAlpha = 0.74;
-  ctx.fillStyle = "#050506";
-  ctx.fillRect(pad, pad + 44, state.map[0].length * scale + 8, state.map.length * scale + 8);
+  ctx.fillStyle = "rgba(5, 5, 6, 0.7)";
+  ctx.fillRect(pad, top, width, height);
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.strokeRect(pad + 0.5, top + 0.5, width - 1, height - 1);
   for (let y = 0; y < state.map.length; y += 1) {
     for (let x = 0; x < state.map[y].length; x += 1) {
-      ctx.fillStyle = state.map[y][x] === "." ? "#222522" : "#d6d6cd";
-      ctx.fillRect(pad + 4 + x * scale, pad + 48 + y * scale, scale - 1, scale - 1);
+      ctx.fillStyle = state.map[y][x] === "." ? "rgba(34, 37, 34, 0.9)" : "rgba(214, 214, 205, 0.86)";
+      ctx.fillRect(pad + 6 + x * scale, top + 6 + y * scale, scale - 1, scale - 1);
     }
   }
-  ctx.fillStyle = "#d72828";
-  ctx.fillRect(pad + 4 + state.player.x * scale - 2, pad + 48 + state.player.y * scale - 2, 4, 4);
+  ctx.fillStyle = "#e5b44f";
+  ctx.fillRect(pad + 6 + state.player.x * scale - 2, top + 6 + state.player.y * scale - 2, 4, 4);
   ctx.globalAlpha = 1;
+}
+
+function drawVignette(width, height) {
+  const gradient = ctx.createRadialGradient(width / 2, height / 2, height * 0.2, width / 2, height / 2, width * 0.75);
+  gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0.42)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
 }
 
 function movePlayer(dt) {
@@ -253,6 +361,7 @@ function movePlayer(dt) {
 function updateCombat(now) {
   if (state.fire && now - state.lastFire > 260) {
     state.lastFire = now;
+    playSound("shoot");
     const target = state.objects
       .filter(obj => obj.alive && obj.kind === "npc_sprite")
       .map(obj => {
@@ -267,7 +376,11 @@ function updateCombat(now) {
 
     if (target) {
       target.obj.alive = false;
-      flashMessage("Hit");
+      state.kills += 1;
+      killsEl.textContent = String(state.kills);
+      playSound("hit");
+      playSound("death");
+      flashMessage("Target down");
     }
   }
 
@@ -276,11 +389,14 @@ function updateCombat(now) {
       continue;
     }
     const distance = Math.hypot(obj.x - state.player.x, obj.y - state.player.y);
-    if (distance < 0.75 && now % 420 < 24) {
+    if (distance < 0.75 && now - state.lastHit > 420) {
+      state.lastHit = now;
       state.player.health = Math.max(0, state.player.health - 1);
+      playSound("hurt");
     }
   }
   healthEl.textContent = String(Math.round(state.player.health));
+  healthFillEl.style.width = `${state.player.health}%`;
 }
 
 function flashMessage(text) {
@@ -342,9 +458,12 @@ async function init() {
   window.addEventListener("resize", resize);
   window.addEventListener("keydown", event => state.keys.add(event.code));
   window.addEventListener("keyup", event => state.keys.delete(event.code));
+  window.addEventListener("pointerdown", unlockAudio, { once: true });
+  window.addEventListener("keydown", unlockAudio, { once: true });
   document.getElementById("fire").addEventListener("pointerdown", () => state.fire = true);
   document.getElementById("fire").addEventListener("pointerup", () => state.fire = false);
   document.getElementById("fire").addEventListener("pointercancel", () => state.fire = false);
+  soundBtn.addEventListener("click", toggleSound);
   setupStick("left-stick", "left");
   setupStick("right-stick", "right");
 
@@ -358,7 +477,7 @@ async function init() {
   state.objects = parseObjects(objectText);
   state.textures = Object.fromEntries(images);
   state.ready = true;
-  flashMessage("Move with left stick, look with right stick, fire with FIRE");
+  flashMessage("Tap Sound, then hunt. Left stick moves, right stick looks.");
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js");

@@ -1,4 +1,4 @@
-const CACHE_NAME = "loon-survival-web-v3";
+const CACHE_NAME = "loon-survival-web-v4";
 const scope = self.registration.scope;
 const asset = path => new URL(path, scope).href;
 const resourceBase = scope.endsWith("/webapp/") ? new URL("../", scope).href : scope;
@@ -22,7 +22,13 @@ const ASSETS = [
   resource("resources/textures/controller/gun_firing.png"),
   resource("resources/textures/controller/skull.png"),
   resource("resources/sprites/npc/caco_demon/0.png"),
-  resource("resources/sprites/animated_sprites/red_light/0.png")
+  resource("resources/sprites/animated_sprites/red_light/0.png"),
+  resource("scripts/resources/audio/theme.mp3"),
+  resource("scripts/resources/audio/player_atk.wav"),
+  resource("scripts/resources/audio/npc_hit.wav"),
+  resource("scripts/resources/audio/npc_death.wav"),
+  resource("scripts/resources/audio/player_hit.wav"),
+  resource("scripts/resources/audio/notification.wav")
 ];
 
 self.addEventListener("install", event => {

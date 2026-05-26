@@ -18,15 +18,25 @@
   <body>
     <main id="app">
       <canvas id="game" aria-label="Loon Survival"></canvas>
-      <div id="hud">
-        <div class="meter">
-          <span>HP</span>
-          <strong id="health">100</strong>
+      <div id="hud" aria-label="Game status">
+        <div class="brand">Loon Survival</div>
+        <div class="meters">
+          <div class="meter health-meter">
+            <span>HP</span>
+            <strong id="health">100</strong>
+            <i id="health-fill"></i>
+          </div>
+          <div class="meter">
+            <span>Kills</span>
+            <strong id="kills">0</strong>
+          </div>
         </div>
-        <button id="install" type="button">Install</button>
+        <button id="sound" class="hud-button" type="button">Sound</button>
+        <button id="install" class="hud-button" type="button">Install</button>
       </div>
-      <div id="left-stick" class="stick" aria-hidden="true"><span></span></div>
-      <div id="right-stick" class="stick" aria-hidden="true"><span></span></div>
+      <div id="crosshair" aria-hidden="true"><span></span></div>
+      <div id="left-stick" class="stick" aria-label="Move"><span></span></div>
+      <div id="right-stick" class="stick" aria-label="Look"><span></span></div>
       <button id="fire" type="button" aria-label="Fire">FIRE</button>
       <div id="message">Loading</div>
     </main>
