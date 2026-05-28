@@ -206,12 +206,12 @@ body,
 }
 
 #right-stick {
-  right: max(22px, env(safe-area-inset-right));
+  right: max(18px, env(safe-area-inset-right));
 }
 
 #fire {
   position: fixed;
-  right: max(38px, env(safe-area-inset-right));
+  right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 10px);
   bottom: calc(max(22px, env(safe-area-inset-bottom)) + clamp(78px, 14vw, 108px) + 10px);
   width: 72px;
   height: 38px;
@@ -297,7 +297,7 @@ body,
   }
 
   #fire {
-    right: max(136px, env(safe-area-inset-right));
+    right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 8px);
     bottom: max(26px, env(safe-area-inset-bottom));
     width: 66px;
     height: 36px;

@@ -63,12 +63,12 @@ const texturePaths = {
 };
 
 const gunCrops = [
-  { x: 0, y: 345, w: 836, h: 705 },
-  { x: 0, y: 189, w: 836, h: 861 },
-  { x: 0, y: 116, w: 837, h: 934 },
-  { x: 166, y: 555, w: 609, h: 487 },
-  { x: 168, y: 0, w: 661, h: 1042 },
-  { x: 56, y: 8, w: 797, h: 1034 }
+  { x: 0, y: 345, w: 836, h: 705, anchorX: 0.52 },
+  { x: 0, y: 189, w: 836, h: 861, anchorX: 0.52 },
+  { x: 0, y: 116, w: 837, h: 934, anchorX: 0.52 },
+  { x: 166, y: 555, w: 609, h: 487, anchorX: 0.5 },
+  { x: 168, y: 0, w: 661, h: 1042, anchorX: 0.52 },
+  { x: 56, y: 8, w: 797, h: 1034, anchorX: 0.52 }
 ];
 
 const audioPaths = {
@@ -342,10 +342,10 @@ function drawGun(now) {
   const height = window.innerHeight;
   const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
   const compact = height < 520;
-  const gunW = Math.min(width * 0.28, height * 0.52, compact ? 300 : 390);
+  const gunW = Math.min(width * 0.22, height * 0.44, compact ? 240 : 330);
   const gunH = gunW * (crop.h / crop.w);
-  const x = width * 0.5 - gunW * 0.52;
-  const y = height - gunH * (compact ? 0.86 : 0.9) + recoil;
+  const x = width * 0.5 - gunW * crop.anchorX;
+  const y = height - gunH * (compact ? 0.72 : 0.78) + recoil;
   ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
 
