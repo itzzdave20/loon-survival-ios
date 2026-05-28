@@ -342,20 +342,20 @@ function drawGun(now) {
   const height = window.innerHeight;
   const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
   const compact = height < 520;
-  const gunW = Math.min(width * 0.26, height * 0.48, compact ? 270 : 350);
+  const gunW = Math.min(width * 0.24, height * 0.44, compact ? 245 : 320);
   const gunH = gunW * (crop.h / crop.w);
-  const x = width * 0.5 - gunW * 0.5;
-  const y = height - gunH * (compact ? 0.36 : 0.42) + recoil;
+  const x = width * 0.5 - gunW * 0.58;
+  const y = height - gunH * (compact ? 0.28 : 0.34) + recoil;
   ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
 
 function drawMinimap() {
-  const scale = window.innerHeight < 430 ? 2.4 : 3.2;
+  const scale = window.innerHeight < 430 ? 2.2 : 3;
   const pad = 12;
   const top = window.innerHeight < 430 ? 50 : 56;
   const width = state.map[0].length * scale + 12;
   const height = state.map.length * scale + 12;
-  ctx.globalAlpha = 0.62;
+  ctx.globalAlpha = 0.54;
   ctx.fillStyle = "rgba(5, 5, 6, 0.7)";
   ctx.fillRect(pad, top, width, height);
   ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";

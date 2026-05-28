@@ -80,9 +80,9 @@ body,
 
 .meter {
   position: relative;
-  min-width: 78px;
-  height: 32px;
-  padding: 0 10px;
+  min-width: 72px;
+  height: 30px;
+  padding: 0 9px;
   display: inline-flex;
   gap: 8px;
   align-items: center;
@@ -115,8 +115,8 @@ body,
 }
 
 .hud-button {
-  height: 32px;
-  min-width: 70px;
+  height: 30px;
+  min-width: 64px;
   padding: 0 10px;
   color: var(--text);
   font-weight: 800;
@@ -181,7 +181,7 @@ body,
 .stick {
   position: fixed;
   bottom: max(22px, env(safe-area-inset-bottom));
-  width: clamp(86px, 16vw, 118px);
+  width: clamp(78px, 14vw, 108px);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.22);
@@ -212,9 +212,9 @@ body,
 #fire {
   position: fixed;
   right: max(38px, env(safe-area-inset-right));
-  bottom: calc(max(22px, env(safe-area-inset-bottom)) + clamp(86px, 16vw, 118px) + 12px);
-  width: 78px;
-  height: 42px;
+  bottom: calc(max(22px, env(safe-area-inset-bottom)) + clamp(78px, 14vw, 108px) + 10px);
+  width: 72px;
+  height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.26);
   background: linear-gradient(180deg, rgba(185, 41, 37, 0.94), rgba(117, 17, 20, 0.94));
   color: var(--text);
@@ -297,11 +297,11 @@ body,
   }
 
   #fire {
-    right: max(150px, env(safe-area-inset-right));
+    right: max(136px, env(safe-area-inset-right));
     bottom: max(26px, env(safe-area-inset-bottom));
-    width: 72px;
-    height: 38px;
-    font-size: 13px;
+    width: 66px;
+    height: 36px;
+    font-size: 12px;
   }
 
   #message {
@@ -319,12 +319,12 @@ body,
   }
 
   .meter {
-    min-width: 64px;
+    min-width: 58px;
   }
 
   .hud-button {
-    min-width: 50px;
-    padding: 0 8px;
-    font-size: 12px;
+    min-width: 46px;
+    padding: 0 7px;
+    font-size: 11px;
   }
 }
