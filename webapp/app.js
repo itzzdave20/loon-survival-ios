@@ -342,10 +342,10 @@ function drawGun(now) {
   const height = window.innerHeight;
   const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
   const compact = height < 520;
-  const gunW = Math.min(width * 0.22, height * 0.44, compact ? 240 : 330);
+  const gunW = Math.min(width * 0.18, height * 0.38, compact ? 190 : 260);
   const gunH = gunW * (crop.h / crop.w);
-  const x = width * 0.5 - gunW * crop.anchorX;
-  const y = height - gunH * (compact ? 0.72 : 0.78) + recoil;
+  const x = width * 0.5 - gunW * 0.5;
+  const y = height - gunH * (compact ? 0.92 : 0.96) + recoil;
   ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
 
