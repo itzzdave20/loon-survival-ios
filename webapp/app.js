@@ -344,7 +344,7 @@ function drawGun(now) {
   const compact = height < 520;
   const gunW = Math.min(width * 0.2, height * 0.4, compact ? 220 : 280);
   const gunH = gunW * (crop.h / crop.w);
-  const x = width * 0.5 - gunW * crop.anchorX;
+  const x = width * 0.5 - gunW * 1.35;
   const y = height - gunH * (compact ? 0.84 : 0.9) + recoil;
   ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
