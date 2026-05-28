@@ -211,8 +211,8 @@ body,
 
 #fire {
   position: fixed;
-  right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 10px);
-  bottom: calc(max(22px, env(safe-area-inset-bottom)) + clamp(78px, 14vw, 108px) + 10px);
+  right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 14px);
+  bottom: max(24px, env(safe-area-inset-bottom));
   width: 72px;
   height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.26);
@@ -297,8 +297,8 @@ body,
   }
 
   #fire {
-    right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 8px);
-    bottom: max(26px, env(safe-area-inset-bottom));
+    right: calc(max(18px, env(safe-area-inset-right)) + clamp(78px, 14vw, 108px) + 12px);
+    bottom: max(24px, env(safe-area-inset-bottom));
     width: 66px;
     height: 36px;
     font-size: 12px;

@@ -63,12 +63,12 @@ const texturePaths = {
 };
 
 const gunCrops = [
-  { x: 0, y: 345, w: 836, h: 705, anchorX: 0.52 },
-  { x: 0, y: 189, w: 836, h: 861, anchorX: 0.52 },
-  { x: 0, y: 116, w: 837, h: 934, anchorX: 0.52 },
-  { x: 166, y: 555, w: 609, h: 487, anchorX: 0.5 },
-  { x: 168, y: 0, w: 661, h: 1042, anchorX: 0.52 },
-  { x: 56, y: 8, w: 797, h: 1034, anchorX: 0.52 }
+  { x: 0, y: 345, w: 836, h: 705, anchorX: 0.72 },
+  { x: 0, y: 189, w: 836, h: 861, anchorX: 0.72 },
+  { x: 0, y: 116, w: 837, h: 934, anchorX: 0.72 },
+  { x: 166, y: 555, w: 609, h: 487, anchorX: 0.66 },
+  { x: 168, y: 0, w: 661, h: 1042, anchorX: 0.68 },
+  { x: 56, y: 8, w: 797, h: 1034, anchorX: 0.7 }
 ];
 
 const audioPaths = {
@@ -255,7 +255,7 @@ function drawScene(now) {
   const width = window.innerWidth;
   const height = window.innerHeight;
   const horizon = height * 0.5;
-  const fov = Math.PI / 3;
+  const fov = Math.PI / 2.15;
   const rays = Math.max(180, Math.floor(width / 3));
   const colWidth = width / rays + 1;
 
@@ -310,14 +310,14 @@ function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
     let relative = angle - state.player.angle;
     while (relative > Math.PI) relative -= Math.PI * 2;
     while (relative < -Math.PI) relative += Math.PI * 2;
-    if (Math.abs(relative) > fov * 0.62 || distance < 0.2) {
+    if (Math.abs(relative) > fov * 0.76 || distance < 0.2) {
       continue;
     }
 
     const frame = Math.floor(performance.now() / 130 + obj.x + obj.y) % 8;
     const img = obj.kind === "npc_sprite" ? state.textures[`npc${frame}`] : state.textures.flame;
-    const maxSize = obj.kind === "npc_sprite" ? height * 0.34 : height * 0.22;
-    const scale = obj.kind === "npc_sprite" ? 0.55 : 0.28;
+    const maxSize = obj.kind === "npc_sprite" ? height * 0.38 : height * 0.22;
+    const scale = obj.kind === "npc_sprite" ? 0.7 : 0.28;
     const size = Math.min(maxSize, height / Math.max(distance, 1.25) * scale);
     const x = width / 2 + Math.tan(relative) * (width / fov) - size / 2;
     const y = horizon - size * 0.52;
@@ -326,7 +326,7 @@ function drawSprites(zBuffer, rays, colWidth, fov, horizon) {
     const visible = zBuffer.slice(startRay, endRay + 1).some(depth => depth > distance - 0.3);
 
     if (visible) {
-      ctx.globalAlpha = obj.hit > 0 ? 0.55 : Math.max(0.35, 1 - distance / 17);
+      ctx.globalAlpha = obj.hit > 0 ? 0.72 : Math.max(0.58, 1 - distance / 20);
       ctx.drawImage(img, x, y, size, size);
       ctx.globalAlpha = 1;
     }
@@ -342,10 +342,10 @@ function drawGun(now) {
   const height = window.innerHeight;
   const recoil = elapsed < 180 ? Math.sin((elapsed / 180) * Math.PI) * 12 : 0;
   const compact = height < 520;
-  const gunW = Math.min(width * 0.18, height * 0.38, compact ? 190 : 260);
+  const gunW = Math.min(width * 0.2, height * 0.4, compact ? 220 : 280);
   const gunH = gunW * (crop.h / crop.w);
-  const x = width * 0.5 - gunW * 0.5;
-  const y = height - gunH * (compact ? 0.92 : 0.96) + recoil;
+  const x = width * 0.5 - gunW * crop.anchorX;
+  const y = height - gunH * (compact ? 0.84 : 0.9) + recoil;
   ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, x, y, gunW, gunH);
 }
 

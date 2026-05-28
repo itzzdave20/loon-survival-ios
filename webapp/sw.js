@@ -1,4 +1,4 @@
-const CACHE_NAME = "loon-survival-web-v13";
+const CACHE_NAME = "loon-survival-web-v14";
 const scope = self.registration.scope;
 const asset = path => new URL(path, scope).href;
 const resourceBase = scope.endsWith("/webapp/") ? new URL("../", scope).href : scope;
